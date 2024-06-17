@@ -42,13 +42,13 @@ pipeline {
                         if (artifactExists) {
                             echo "*** File: ${artifactPath}, group: ${pom.groupId}, packaging: ${pom.packaging}, version ${pom.version}"
                             nexusArtifactUploader(
-                                nexusVersion: NEXUS_VERSION,
-                                protocol: NEXUS_PROTOCOL,
-                                nexusUrl: NEXUS_URL,
+                                nexusVersion: nexus3,
+                                protocol: http,
+                                nexusUrl: 13.60.86.216:808,
                                 groupId: pom.groupId,
                                 version: ARTIFACT_VERSION,
-                                repository: NEXUS_REPOSITORY,
-                                credentialsId: NEXUS_CREDENTIAL_ID,
+                                repository: loginwebapp,
+                                credentialsId: nexusCred,
                                 artifacts: [
                                     [
                                         artifactId: pom.artifactId,
