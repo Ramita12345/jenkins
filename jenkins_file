@@ -5,16 +5,14 @@ pipeline {
         jdk 'java21'
     }
 
-     environment {
-        // This can be nexus3 or nexus2
+    environment {
+        JAVA_HOME = 'C:\\Program Files\\Java\\jdk-21'
+        PATH = "${env.JAVA_HOME}\\bin;${env.PATH}"
+        
         NEXUS_VERSION = "nexus3"
-        // This can be http or https
         NEXUS_PROTOCOL = "http"
-        // Where your Nexus is running
         NEXUS_URL = "13.60.86.216:8081"
-        // Repository where we will upload the artifact
         NEXUS_REPOSITORY = "loginwebapp"
-        // Jenkins credential id to authenticate to Nexus OSS
         NEXUS_CREDENTIAL_ID = "nexusCred"
         ARTIFACT_VERSION = "${BUILD_NUMBER}"
     }
@@ -22,33 +20,28 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                  git branch: 'main', url: 'https://github.com/Ramita12345/jenkins.git'
+                git branch: 'main', url: 'https://github.com/Ramita12345/jenkins.git'
             }
         }
- 
-         stage('Build') {
+
+        stage('Build') {
             steps {
-                   // Use bat instead of sh for Windows
                 bat 'mvn clean install'
             }
         }
-          stage('Publish to Nexus') {
+
+        stage('Publish to Nexus') {
             steps {
                 script {
-                       try {
-                        // Read POM xml file using 'readMavenPom' step
+                    try {
                         def pom = readMavenPom file: 'pom.xml'
-                        // Find built artifact under target folder
                         def filesByGlob = findFiles(glob: "target/*.${pom.packaging}")
-                        // Print some info from the artifact found
                         echo "${filesByGlob[0].name} ${filesByGlob[0].path} ${filesByGlob[0].directory} ${filesByGlob[0].length} ${filesByGlob[0].lastModified}"
-                        // Extract the path from the File found
                         def artifactPath = filesByGlob[0].path
-                        // Assign to a boolean response verifying If the artifact name exists
                         def artifactExists = fileExists artifactPath
-        if (artifactExists) {
+                        if (artifactExists) {
                             echo "*** File: ${artifactPath}, group: ${pom.groupId}, packaging: ${pom.packaging}, version ${pom.version}"
- nexusArtifactUploader(
+                            nexusArtifactUploader(
                                 nexusVersion: NEXUS_VERSION,
                                 protocol: NEXUS_PROTOCOL,
                                 nexusUrl: NEXUS_URL,
@@ -57,11 +50,12 @@ pipeline {
                                 repository: NEXUS_REPOSITORY,
                                 credentialsId: NEXUS_CREDENTIAL_ID,
                                 artifacts: [
-                                    // Artifact generated such as .jar, .ear and .war files.
-                                    [artifactId: pom.artifactId,
-                                    classifier: '',
-                                    file: artifactPath,
-                                    type: pom.packaging]
+                                    [
+                                        artifactId: pom.artifactId,
+                                        classifier: '',
+                                        file: artifactPath,
+                                        type: pom.packaging
+                                    ]
                                 ]
                             )
                         } else {
@@ -74,5 +68,17 @@ pipeline {
                 }
             }
         }
-}
+    }
+
+    post {
+        always {
+            echo 'This will always run'
+        }
+        success {
+            echo 'This will run only if successful'
+        }
+        failure {
+            echo 'This will run only if failed'
+        }
+    }
 }
