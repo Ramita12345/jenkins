@@ -14,7 +14,7 @@ pipeline {
         NEXUS_URL = "13.60.86.216:8081"
         NEXUS_REPOSITORY = "loginwebapp"
         NEXUS_CREDENTIAL_ID = "nexusCred"
-        ARTIFACT_VERSION = "${BUILD_NUMBER}"
+        ARTIFACT_VERSION = "1.0-SNAPSHOT"
     }
 
     stages {
@@ -45,16 +45,16 @@ pipeline {
                                 nexusVersion: nexus3,
                                 protocol: http,
                                 nexusUrl: 13.60.86.216:808,
-                                groupId: pom.groupId,
-                                version: ARTIFACT_VERSION,
+                                groupId: com.ranjitswain,
+                                version: 1.0-SNAPSHOT,
                                 repository: loginwebapp,
                                 credentialsId: nexusCred,
                                 artifacts: [
                                     [
-                                        artifactId: pom.artifactId,
+                                        artifactId: loginwebapp,
                                         classifier: '',
                                         file: artifactPath,
-                                        type: pom.packaging
+                                        type: 'war' 
                                     ]
                                 ]
                             )
